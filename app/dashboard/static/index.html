@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yant Guard dashboard</title>
+<link rel="stylesheet" href="/dashboard/static/dashboard.css">
+</head>
+<body>
+<header class="top">
+  <h1>🛡️ Yant Guard</h1>
+  <div class="controls">
+    <label>Period
+      <select id="days">
+        <option value="7">Last 7 days</option>
+        <option value="30" selected>Last 30 days</option>
+        <option value="90">Last 90 days</option>
+        <option value="365">Last 365 days</option>
+      </select>
+    </label>
+    <label class="check"><input type="checkbox" id="auto"> Auto-refresh</label>
+    <button id="refresh" type="button">Refresh</button>
+    <span id="updated" class="muted"></span>
+    <span class="who">👤 <span id="admin-name"></span></span>
+    <button id="open-password" type="button">Change password</button>
+    <button id="logout" type="button">Sign out</button>
+  </div>
+</header>
+
+<main>
+  <p id="error" class="error" hidden></p>
+  <p class="muted note">Costs are equivalent list prices (the free tier itself costs $0).</p>
+
+  <section id="kpis" class="kpis" aria-label="Headline numbers"></section>
+
+  <section>
+    <h2>Monthly budgets</h2>
+    <p class="muted note">Counts this calendar month (UTC), whatever period is selected above.</p>
+    <div id="budgets"></div>
+  </section>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-tab="overview" aria-selected="true" type="button">Overview</button>
+    <button role="tab" data-tab="people" aria-selected="false" type="button">Departments &amp; users</button>
+    <button role="tab" data-tab="security" aria-selected="false" type="button">Security</button>
+    <button role="tab" data-tab="log" aria-selected="false" type="button">Request log</button>
+    <button role="tab" data-tab="manage" aria-selected="false" type="button">Manage</button>
+  </nav>
+
+  <section id="tab-overview" class="tab">
+    <h3>Cost per day, by department</h3>
+    <div id="chart-cost" class="chart"></div>
+    <div id="legend-cost" class="legend"></div>
+    <h3>Requests per day</h3>
+    <div id="chart-requests" class="chart"></div>
+    <div class="two">
+      <div><h3>Outcomes</h3><div id="t-outcomes"></div></div>
+      <div><h3>Models used (successful requests)</h3><div id="t-models"></div></div>
+    </div>
+  </section>
+
+  <section id="tab-people" class="tab" hidden>
+    <h3>By department</h3><div id="t-departments"></div>
+    <h3>Top users</h3><div id="t-users"></div>
+  </section>
+
+  <section id="tab-security" class="tab" hidden>
+    <div class="kpis" id="sec-kpis"></div>
+    <h3>What the filter caught</h3>
+    <p class="muted note">Counts only: the values themselves are never stored.</p>
+    <div id="t-security"></div>
+    <h3>Current rules</h3><div id="t-rules"></div>
+    <p class="muted note">Change rules in the admin menu (scripts\admin.bat, option 13).</p>
+    <h3>Latest audit entries</h3><div id="t-audit"></div>
+  </section>
+
+  <section id="tab-log" class="tab" hidden>
+    <h3>Latest 100 requests</h3>
+    <p class="muted note">Prompt text is never stored.</p>
+    <div id="t-requests"></div>
+  </section>
+
+  <section id="tab-manage" class="tab" hidden>
+    <div id="manage-msg" class="msg" hidden></div>
+    <div id="keybox" class="keybox" hidden>
+      <strong id="key-title"></strong>
+      <code id="key-value"></code>
+      <button id="key-copy" type="button" class="small">Copy key</button>
+      <button id="key-close" type="button" class="small">I have saved it</button>
+      <p class="muted note">This is the only time the key is shown. If it is lost, use "Replace key".</p>
+    </div>
+
+    <h3>Departments: allowed providers and monthly budget</h3>
+    <div id="m-departments"></div>
+    <form id="form-department" class="row-form">
+      <label>New department <input id="new-department" type="text" maxlength="60" required></label>
+      <button type="submit">Add department</button>
+    </form>
+
+    <h3>Users and API keys</h3>
+    <div id="m-users"></div>
+    <form id="form-user" class="row-form">
+      <label>New user <input id="new-user" type="text" maxlength="60" required></label>
+      <label>Department <select id="new-user-dept" required></select></label>
+      <button type="submit">Add user and create key</button>
+    </form>
+
+    <h3>Security filter rules</h3>
+    <div id="m-rules"></div>
+
+    <h3>Admin activity</h3>
+    <div id="m-actions"></div>
+  </section>
+</main>
+
+<dialog id="password-dialog">
+  <form id="form-password">
+    <h3 class="flush">Change password</h3>
+    <label>Current password <input id="pw-old" type="password" autocomplete="current-password" required></label>
+    <label>New password (8+ characters) <input id="pw-new" type="password" autocomplete="new-password" required></label>
+    <label>Repeat new password <input id="pw-new2" type="password" autocomplete="new-password" required></label>
+    <p id="pw-error" class="error" hidden></p>
+    <div class="row-form"><button type="submit">Save</button><button id="pw-cancel" type="button">Cancel</button></div>
+  </form>
+</dialog>
+
+<div id="tip" class="tip" hidden></div>
+<script src="/dashboard/static/dashboard.js"></script>
+</body>
+</html>

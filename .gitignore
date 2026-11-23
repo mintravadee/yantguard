@@ -1,1 +1,18 @@
+.venv/
+.venv-old/
+__pycache__/
+*.pyc
+
 .env
+.env.*
+!.env.example
+.DS_Store
+.ipynb_checkpoints/
+.pytest_cache/
+*.db
+data/
+
+# Desktop build output
+dist/
+build/
+*.spec.bak

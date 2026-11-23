@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yant Guard - sign in</title>
+<link rel="stylesheet" href="/dashboard/static/dashboard.css">
+</head>
+<body class="login-page">
+<main class="login-card">
+  <h1>🛡️ Yant Guard</h1>
+  <p id="intro" class="muted">Sign in to manage the gateway.</p>
+  <form id="form" autocomplete="on">
+    <label>Username
+      <input id="username" name="username" type="text" autocomplete="username" required autofocus>
+    </label>
+    <label>Password
+      <input id="password" name="password" type="password" autocomplete="current-password" required>
+    </label>
+    <label id="confirm-row" hidden>Repeat password
+      <input id="confirm" name="confirm" type="password" autocomplete="new-password">
+    </label>
+    <p id="hint" class="muted note" hidden>Choose a username and a password of at least 8 characters.
+      This first account becomes the administrator.</p>
+    <p id="error" class="error" hidden></p>
+    <button id="submit" type="submit" class="primary">Sign in</button>
+  </form>
+</main>
+<script src="/dashboard/static/login.js"></script>
+</body>
+</html>
