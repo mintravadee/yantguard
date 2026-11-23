@@ -57,7 +57,9 @@ def provider_http_error(provider: str, status_code: int) -> HTTPException:
     if status_code == 503:
         return HTTPException(
             status_code=503,
-            detail=f"{name} is temporarily unavailable. Try again later.",
+            detail=f"{name} is temporarily unavailable after retries. "
+            "Keep your existing API key and try again later.",
+            headers={"Retry-After": "30"},
         )
     return HTTPException(status_code=502, detail="AI provider request failed")
 

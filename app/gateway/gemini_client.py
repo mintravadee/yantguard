@@ -3,6 +3,7 @@ import asyncio
 import logging
 import math
 import os
+import random
 
 import httpx
 from google import genai
@@ -10,7 +11,7 @@ from google.genai import errors, types
 
 logger = logging.getLogger(__name__)
 
-MAX_ATTEMPTS = 2
+MAX_ATTEMPTS = 4
 RETRY_DELAY_SECONDS = 1.0
 RETRYABLE_STATUS_CODES = {408, 500, 502, 503, 504}
 
@@ -23,13 +24,14 @@ def get_timeout_seconds() -> float:
 
 
 def get_gateway_timeout_seconds() -> float:
-    # Allow both attempts, the retry delay, and time to close the SDK client.
-    return MAX_ATTEMPTS * get_timeout_seconds() + RETRY_DELAY_SECONDS + 5.0
+    # Include the maximum exponential backoff (with jitter) and client cleanup.
+    retry_budget = sum(RETRY_DELAY_SECONDS * 2**n for n in range(MAX_ATTEMPTS - 1))
+    return MAX_ATTEMPTS * get_timeout_seconds() + retry_budget + 5.0
 
 
 async def generate(prompt: str) -> dict:
     api_key = os.getenv("GEMINI_API_KEY")
-    model = os.getenv("GEMINI_MODEL") or "gemini-3.5-flash"
+    model = os.getenv("GEMINI_MODEL") or "gemini-3.8-flash"
 
     if not api_key:
         raise RuntimeError("Gemini API key is missing")
@@ -66,7 +68,9 @@ async def generate(prompt: str) -> dict:
                     "Gemini transport failure (%s); retrying (attempt %s/%s)",
                     type(exc).__name__, attempt + 1, MAX_ATTEMPTS,
                 )
-            await asyncio.sleep(RETRY_DELAY_SECONDS)
+            # Spread retries across clients instead of immediately hitting a busy model.
+            delay = RETRY_DELAY_SECONDS * 2 ** (attempt - 1)
+            await asyncio.sleep(random.uniform(delay / 2, delay))
 
         usage = response.usage_metadata
         answer = response.text
